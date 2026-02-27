@@ -31,8 +31,6 @@ build/
 # ========================
 # Docker files (no need to copy into itself)
 # ========================
-Dockerfile
-.dockerignore
 docker-compose*.yml
 
 # ========================
