@@ -1,0 +1,69 @@
+# ========================
+# Dependencies (rebuilt inside Docker via npm ci)
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================
+# Next.js build output (rebuilt inside Docker via npm run build)
+# ========================
+.next/
+out/
+build/
+
+# ========================
+# Environment variables — inject these at runtime, never bake into image
+# ========================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+
+# ========================
+# Git
+# ========================
+.git/
+.gitignore
+
+# ========================
+# Docker files (no need to copy into itself)
+# ========================
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# ========================
+# OS generated files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Editor / IDE
+# ========================
+.vscode/
+.idea/
+
+# ========================
+# Logs & temp files
+# ========================
+*.log
+.turbo/
+
+# ========================
+# Tests & coverage
+# ========================
+coverage/
+.nyc_output/
+**/*.test.js
+**/*.spec.js
+
+# ========================
+# Docs
+# ========================
+README.md
+nginx.conf

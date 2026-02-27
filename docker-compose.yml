@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  hostelops:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hostelops_app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+      # Supabase
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+      # Auth
+      JWT_SECRET: ${JWT_SECRET}
+
+      # Seed admin credentials
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_NAME: ${ADMIN_NAME}
+
+    healthcheck:
+      test: [ 'CMD', 'wget', '-qO-', 'http://localhost:3000/api/health', '||', 'exit', '1' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    networks:
+      - hostelops_net
+
+networks:
+  hostelops_net:
+    driver: bridge

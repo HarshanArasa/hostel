@@ -22,7 +22,19 @@
 
 # misc
 .DS_Store
+Thumbs.db
+desktop.ini
 *.pem
+
+# editor / IDE
+.vscode/
+.idea/
+*.suo
+*.njsproj
+*.sln
+
+# turbo
+.turbo
 
 # debug
 npm-debug.log*
