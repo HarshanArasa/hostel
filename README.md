@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HostelOps
 
 **Modern Hostel Complaint & Maintenance Management System**
@@ -188,3 +189,6 @@ hostelops/
 | View all complaints      | ✗       | ✓     |
 | Filter / search          | ✗       | ✓     |
 | Update complaint status  | ✗       | ✓     |
+=======
+# hostel
+>>>>>>> fb48cc15c2f46915a3152736d2466c8be22f1577
