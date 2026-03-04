@@ -180,13 +180,7 @@ export default function Loader() {
 
             {/* Animated status text with dot pulse */}
             <div className="flex items-center gap-2">
-                <motion.p
-                    className="text-xs text-slate-500 tracking-[0.2em] uppercase"
-                    animate={{ opacity: [0.4, 0.9, 0.4] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                    Loading
-                </motion.p>
+                <p className="mt-4 text-slate-400 text-xs animate-pulse">Entering Sahyadri Hostel...</p>
                 <div className="flex gap-1">
                     {[0, 1, 2].map(i => (
                         <motion.div

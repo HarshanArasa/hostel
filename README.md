@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-# HostelOps
+# Sahyadri Hostel
 
-**Modern Hostel Complaint & Maintenance Management System**
+**Modern Sahyadri Hostel Complaint & Maintenance Management System**
 
-Built with **Next.js 15** (App Router), **Supabase** (PostgreSQL), **Tailwind CSS**, **Framer Motion**, and JWT-based role auth.
+Built with **Next.js 15** (App Router), **Neon (PostgreSQL)**, **Tailwind CSS**, **Framer Motion**, and JWT-based role auth.
 
 ---
 
@@ -13,7 +12,7 @@ Built with **Next.js 15** (App Router), **Supabase** (PostgreSQL), **Tailwind CS
 |-------------|----------------------------------|
 | Frontend    | React (Next.js App Router)       |
 | Backend     | Next.js API Routes               |
-| Database    | Supabase (PostgreSQL)            |
+| Database    | Neon (PostgreSQL)                |
 | Auth        | JWT (jsonwebtoken + bcryptjs)    |
 | Styling     | Tailwind CSS                     |
 | Animations  | Framer Motion                    |
@@ -40,45 +39,17 @@ cp .env.example .env.local
 ```
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+MONGODB_URI=mongodb+srv://your-user:your-password@cluster.mongodb.net/hostelops
 JWT_SECRET=your_super_secret_jwt_key_min_32_chars
+ADMIN_EMAIL=admin@hostelops.com
+ADMIN_PASSWORD=Admin@123
+ADMIN_NAME=HostelOps Admin
 ```
 
-### 3. Set Up Supabase Database
+### 3. Set Up Initial Admin
 
-Run the following SQL in your **Supabase SQL Editor** (Dashboard → SQL Editor → New Query):
-
-```sql
--- Users table
-CREATE TABLE IF NOT EXISTS users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('student', 'admin')),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Complaints table
-CREATE TABLE IF NOT EXISTS complaints (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  category TEXT NOT NULL,
-  description TEXT NOT NULL,
-  priority TEXT NOT NULL CHECK (priority IN ('Low', 'Medium', 'High')),
-  status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'In Progress', 'Resolved')),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Index for faster complaint lookups by user
-CREATE INDEX IF NOT EXISTS idx_complaints_user_id ON complaints(user_id);
-CREATE INDEX IF NOT EXISTS idx_complaints_status ON complaints(status);
-```
-
-> **Note:** Disable Row Level Security (RLS) or configure it to allow the Service Role key unrestricted access, since HostelOps handles authorization at the API route level using JWT.
+After configuring your `MONGODB_URI`, run the seed route to create the initial admin account:
+`POST /api/auth/seed`
 
 ### 4. Run Dev Server
 
@@ -93,11 +64,11 @@ Open [http://localhost:3000](http://localhost:3000)
 ## Request Lifecycle
 
 ```
-Browser                     Next.js API Route              Supabase
+Browser                     Next.js API Route              MongoDB
   │                               │                            │
   │── POST /api/auth/login ───────▶│                            │
-  │                               │── SELECT users WHERE email ▶│
-  │                               │◀── user row ───────────────│
+  │                               │── findOne({ email }) ──────▶│
+  │                               │◀── user document ──────────│
   │                               │ bcrypt.compare(password)   │
   │                               │ signToken(userId, role)    │
   │◀─── { token, user } ─────────│                            │
@@ -105,8 +76,8 @@ Browser                     Next.js API Route              Supabase
   │── GET /api/complaints ────────▶│                            │
   │   Authorization: Bearer <tok> │                            │
   │                               │ requireAuth() → verifyToken│
-  │                               │── SELECT complaints ───────▶│
-  │                               │◀── rows ──────────────────│
+  │                               │── find().populate(...) ────▶│
+  │                               │◀── documents ──────────────│
   │◀─── { complaints: [...] } ───│                            │
 ```
 
@@ -122,9 +93,7 @@ docker build -t hostelops .
 
 # Run container (pass your env vars)
 docker run -p 3000:3000 \
-  -e NEXT_PUBLIC_SUPABASE_URL=... \
-  -e NEXT_PUBLIC_SUPABASE_ANON_KEY=... \
-  -e SUPABASE_SERVICE_ROLE_KEY=... \
+  -e MONGODB_URI=... \
   -e JWT_SECRET=... \
   hostelops
 ```

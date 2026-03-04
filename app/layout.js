@@ -5,8 +5,8 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'HostelOps — Complaint Management',
-  description: 'Modern Hostel Complaint & Maintenance Management System',
+  title: 'Sahyadri Hostel — Complaint Management',
+  description: 'Modern Sahyadri Hostel Complaint & Maintenance Management System',
 };
 
 export default function RootLayout({ children }) {
@@ -17,6 +17,9 @@ export default function RootLayout({ children }) {
         {/* Toast notification system */}
         <Toaster
           position="top-right"
+          containerStyle={{
+            zIndex: 99999,
+          }}
           toastOptions={{
             duration: 4000,
             style: {

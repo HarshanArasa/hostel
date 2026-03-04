@@ -380,7 +380,7 @@ export default function AdminDashboard() {
 
                 {/* Top bar */}
                 <header className="h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0f0d1e]/60 backdrop-blur shrink-0">
-                    <h1 className="text-sm font-bold text-white whitespace-nowrap">Complaint Management</h1>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Sahyadri Hostel Dashboard</h1>
                     {/* Search */}
                     <div className="relative flex-1 max-w-xs">
                         <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />

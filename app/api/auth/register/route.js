@@ -1,50 +1,44 @@
-import { getSupabaseAdmin } from '@/lib/supabase';
 import { signToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-/**
- * POST /api/auth/register
- * Registers a new user with hashed password and sets their role.
- */
 export async function POST(req) {
     try {
         const { name, email, password, role } = await req.json();
 
-        // Validate required fields
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password) {
             return Response.json({ error: 'All fields are required' }, { status: 400 });
         }
 
-        // Validate role
-        if (!['student', 'admin'].includes(role)) {
-            return Response.json({ error: 'Invalid role' }, { status: 400 });
+        // Check if user already exists
+        const exisitingUser = await prisma.user.findUnique({ where: { email } });
+        if (exisitingUser) {
+            return Response.json({ error: 'User already exists' }, { status: 400 });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 12);
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert user into Supabase
-        const { data, error } = await getSupabaseAdmin()
-            .from('users')
-            .insert([{ name, email, password: hashedPassword, role }])
-            .select('id, name, email, role')
-            .single();
+        // Create user
+        const user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: role || 'student',
+            },
+        });
 
-        if (error) {
-            if (error.code === '23505') {
-                return Response.json({ error: 'Email already registered' }, { status: 409 });
-            }
-            throw error;
-        }
+        // Generate JWT
+        const token = signToken({ userId: user.id, role: user.role });
 
-        // Sign JWT
-        const token = signToken({ userId: data.id, email: data.email, role: data.role });
-
-        return Response.json(
-            { message: 'Registration successful', token, user: data },
-            { status: 201 }
-        );
+        return Response.json({
+            message: 'User registered successfully',
+            user: { id: user.id, name: user.name, email: user.email, role: user.role },
+            token,
+        }, { status: 201 });
     } catch (err) {
+        console.error('Registration error:', err);
         return Response.json({ error: 'Registration failed', details: err.message }, { status: 500 });
     }
 }

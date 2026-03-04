@@ -37,7 +37,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="relative z-10 px-6 py-4 flex items-center justify-between max-w-6xl mx-auto w-full">
         <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-          HostelOps
+          Sahyadri Hostel
         </span>
         <div className="flex items-center gap-3">
           <Link href="/login" className="text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5">
@@ -73,7 +73,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            HostelOps is the modern dashboard for managing student complaints and maintenance requests — built for speed, clarity, and transparency.
+            Sahyadri Hostel is the modern dashboard for managing student complaints and maintenance requests — built for speed, clarity, and transparency.
           </p>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">

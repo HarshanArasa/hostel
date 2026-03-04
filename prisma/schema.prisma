@@ -1,0 +1,36 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  password   String
+  role       String     @default("student")
+  createdAt  DateTime   @default(now())
+  complaints Complaint[]
+
+  @@map("users")
+}
+
+model Complaint {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  description String
+  priority    String   @default("Medium")
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("complaints")
+}

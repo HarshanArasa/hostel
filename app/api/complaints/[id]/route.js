@@ -1,16 +1,8 @@
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import { requireAuth, requireAdmin } from '@/middleware/auth';
 
-/**
- * PUT /api/complaints/:id
- * Admin-only: updates the status of a complaint.
- * Valid statuses: 'Pending', 'In Progress', 'Resolved'
- */
 export async function PUT(req, { params }) {
     try {
-        const payload = requireAuth(req);
-        requireAdmin(payload);
-
         const { id } = await params;
         const { status } = await req.json();
 
@@ -19,21 +11,26 @@ export async function PUT(req, { params }) {
             return Response.json({ error: `Status must be one of: ${validStatuses.join(', ')}` }, { status: 400 });
         }
 
-        const { data, error } = await getSupabaseAdmin()
-            .from('complaints')
-            .update({ status, updated_at: new Date().toISOString() })
-            .eq('id', id)
-            .select()
-            .single();
+        const complaint = await prisma.complaint.update({
+            where: { id },
+            data: { status },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+        });
 
-        if (error) throw error;
-        if (!data) {
+        if (!complaint) {
             return Response.json({ error: 'Complaint not found' }, { status: 404 });
         }
 
-        return Response.json({ message: 'Complaint updated successfully', complaint: data });
+        return Response.json({ message: 'Complaint updated successfully', complaint });
     } catch (err) {
-        const status = err.message.includes('token') || err.message.includes('auth') || err.message.includes('admin') ? 401 : 500;
+        const status = (err.message.includes('token') || err.message.includes('auth') || err.message.includes('admin')) ? 401 : 500;
         return Response.json({ error: err.message }, { status });
     }
 }

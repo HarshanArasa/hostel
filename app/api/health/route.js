@@ -5,19 +5,11 @@
  */
 export async function GET() {
     const checks = {
-        NEXT_PUBLIC_SUPABASE_URL: {
-            set: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-            valid: process.env.NEXT_PUBLIC_SUPABASE_URL?.startsWith('https://') &&
-                process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('.supabase.co'),
-            value: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30) + '...',
-        },
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: {
-            set: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-            valid: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.startsWith('eyJ'),
-        },
-        SUPABASE_SERVICE_ROLE_KEY: {
-            set: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-            valid: process.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith('eyJ'),
+        DATABASE_URL: {
+            set: !!process.env.DATABASE_URL,
+            valid: process.env.DATABASE_URL?.startsWith('postgresql://') ||
+                process.env.DATABASE_URL?.startsWith('postgres://'),
+            value: process.env.DATABASE_URL ? (process.env.DATABASE_URL.split('@')[1] || 'URL set but hidden') : 'Not set',
         },
         JWT_SECRET: {
             set: !!process.env.JWT_SECRET,
@@ -44,7 +36,7 @@ export async function GET() {
         issues,
         checks,
         nextStep: allOk
-            ? 'Call POST /api/auth/seed to create the admin account, then login.'
-            : 'Fill in the real values in .env.local and restart npm run dev',
+            ? 'Run npx prisma db push, then visit /api/auth/seed to create the admin account.'
+            : 'Fill in the real DATABASE_URL in .env.local and restart npm run dev',
     }, { status: allOk ? 200 : 500 });
 }

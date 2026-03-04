@@ -13,6 +13,7 @@ export default function RegisterPage() {
     const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     // If already logged in, redirect to dashboard instead of showing register form
     useEffect(() => {
@@ -33,6 +34,7 @@ export default function RegisterPage() {
             return;
         }
         setLoading(true);
+        setError('');
 
         try {
             const res = await fetch('/api/auth/register', {
@@ -44,7 +46,9 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                toast.error(data.error || 'Registration failed');
+                const errorMessage = data.error || data.details || 'Registration failed';
+                setError(errorMessage);
+                toast.error(errorMessage);
                 return;
             }
 
@@ -53,8 +57,11 @@ export default function RegisterPage() {
             toast.success('Account created! Welcome to HostelOps 🎉');
 
             router.push(data.user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student');
-        } catch {
-            toast.error('Network error. Please try again.');
+        } catch (err) {
+            console.error('Registration fetch error:', err);
+            const msg = 'Network error or server timeout. Please try again.';
+            setError(msg);
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
@@ -83,8 +90,14 @@ export default function RegisterPage() {
                             <span className="text-white font-bold text-lg">H</span>
                         </div>
                         <h1 className="text-2xl font-bold text-white">Create Account</h1>
-                        <p className="text-slate-400 text-sm mt-1">Join HostelOps today</p>
+                        <p className="text-slate-400 text-sm mt-1">Join Sahyadri Hostel today</p>
                     </div>
+
+                    {error && (
+                        <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center font-medium">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Name */}

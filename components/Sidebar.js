@@ -72,9 +72,9 @@ export default function Sidebar({ role }) {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -10 }}
                                 transition={{ duration: 0.2 }}
-                                className="font-bold text-lg bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent whitespace-nowrap"
+                                className="font-bold text-xl bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent"
                             >
-                                HostelOps
+                                Sahyadri Hostel
                             </motion.span>
                         )}
                     </AnimatePresence>

@@ -13,12 +13,14 @@ export default function LoginPage() {
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
         try {
             const res = await fetch('/api/auth/login', {
@@ -30,7 +32,9 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                toast.error(data.error || 'Login failed');
+                const errorMessage = data.error || data.details || 'Login failed';
+                setError(errorMessage);
+                toast.error(errorMessage);
                 return;
             }
 
@@ -42,8 +46,9 @@ export default function LoginPage() {
 
             // Route based on role
             router.push(data.user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student');
-        } catch {
-            toast.error('Network error. Please try again.');
+        } catch (err) {
+            console.error('Login fetch error:', err);
+            toast.error('Network error or server timeout. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -73,8 +78,14 @@ export default function LoginPage() {
                             <span className="text-white font-bold text-lg">H</span>
                         </div>
                         <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-                        <p className="text-slate-400 text-sm mt-1">Sign in to HostelOps</p>
+                        <p className="text-slate-400 text-sm mt-1">Sign in to Sahyadri Hostel</p>
                     </div>
+
+                    {error && (
+                        <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email */}

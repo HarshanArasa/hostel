@@ -331,7 +331,7 @@ export default function StudentDashboard() {
                         <BarChart3 size={15} className="text-white" />
                     </div>
                     <div>
-                        <p className="font-bold text-sm text-white leading-none">HostelOps</p>
+                        <p className="font-bold text-sm text-white leading-none">Sahyadri Hostel</p>
                         <p className="text-[10px] text-slate-500">Student Portal</p>
                     </div>
                 </div>

@@ -1,60 +1,42 @@
-import { getSupabaseAdmin } from '@/lib/supabase';
-import { signToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-/**
- * POST /api/auth/seed
- * One-time route to create the default admin account from env vars.
- * Uses ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME from .env.local
- * Safe to call multiple times — skips if admin already exists.
- */
-export async function POST() {
+export async function POST(req) {
     try {
-        const email = process.env.ADMIN_EMAIL;
-        const password = process.env.ADMIN_PASSWORD;
-        const name = process.env.ADMIN_NAME || 'Admin';
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        const adminName = process.env.ADMIN_NAME;
 
-        if (!email || !password) {
-            return Response.json(
-                { error: 'ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env.local' },
-                { status: 500 }
-            );
+        if (!adminEmail || !adminPassword) {
+            return Response.json({ error: 'Admin credentials not configured' }, { status: 500 });
         }
 
         // Check if admin already exists
-        const { data: existing } = await getSupabaseAdmin()
-            .from('users')
-            .select('id, email')
-            .eq('email', email)
-            .single();
+        let admin = await prisma.user.findUnique({ where: { email: adminEmail } });
 
-        if (existing) {
-            return Response.json({
-                message: 'Admin account already exists',
-                email: existing.email,
-            });
+        if (admin) {
+            return Response.json({ message: 'Admin account already exists', admin: { id: admin.id, email: admin.email } });
         }
 
-        // Hash password and create admin
-        const hashedPassword = await bcrypt.hash(password, 12);
+        // Hash password
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
-        const { data, error } = await getSupabaseAdmin()
-            .from('users')
-            .insert([{ name, email, password: hashedPassword, role: 'admin' }])
-            .select('id, name, email, role')
-            .single();
-
-        if (error) throw error;
-
-        const token = signToken({ userId: data.id, email: data.email, role: data.role });
+        // Create admin
+        admin = await prisma.user.create({
+            data: {
+                name: adminName || 'Admin',
+                email: adminEmail,
+                password: hashedPassword,
+                role: 'admin',
+            },
+        });
 
         return Response.json({
-            message: '✅ Admin account created successfully',
-            user: data,
-            token,
+            message: 'Admin account seeded successfully',
+            admin: { id: admin.id, email: admin.email, role: admin.role },
         }, { status: 201 });
-
     } catch (err) {
-        return Response.json({ error: err.message }, { status: 500 });
+        console.error('Seed error:', err);
+        return Response.json({ error: 'Seeding failed', details: err.message }, { status: 500 });
     }
 }
